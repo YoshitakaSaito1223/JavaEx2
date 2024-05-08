@@ -3,20 +3,30 @@ package logic;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import player.Computer;
 import player.Player;
 import pocket.Pocket;
 
 public class Logic {
 	Scanner sc = new Scanner(System.in);
+	Computer ai = new Computer(2);
 
 	//動かすマスを選択
 	public boolean chooseMovePocket(int _pocketNum, Player _player, ArrayList<Pocket> _pockets) {
 		boolean ex = false;
 
 		System.out.println("\n" + _player.getName() + " さんの番です。");
-		System.out.print("動かすポケットを選択してください。:");
+		
 
-		int choosePocketNum = Integer.parseInt(sc.nextLine());
+		int choosePocketNum;
+		if (_player.getName().equals("Computer")) {
+			choosePocketNum = ai.randomChoose(_pocketNum);
+			System.out.println(ai.getName()+"は"+choosePocketNum+"を選択しました。");
+		} else {
+			System.out.print("動かすポケットを選択してください。:");
+			choosePocketNum = Integer.parseInt(sc.nextLine());
+		}
+
 		int preMoveNum = _pockets.get(choosePocketNum).getSeeds();
 		if (allowChoosePocket(choosePocketNum, _pocketNum, _player, _pockets)) {
 			int choosed = _pockets.get(choosePocketNum).getSeeds();
@@ -27,14 +37,14 @@ public class Logic {
 				int tmp = _pockets.get(currentIndex).getSeeds();
 				_pockets.get(currentIndex).setSeeds(tmp + 1);
 			}
-			
+
 		} else {
-			System.out.println("\n"+"\u001b[00;41m"+"自分のポケットを選択してください。"+"\u001b[00m");
-			return ex=true;
-		}
-		if ((choosePocketNum + preMoveNum) % (_pockets.size()-1) == 0) {
+			System.out.println("\n" + "\u001b[00;41m" + "自分のポケットかつ0以外のポケットを選択してください。" + "\u001b[00m");
 			return ex = true;
-		} else if ((choosePocketNum + preMoveNum) % (_pockets.size()-1) == (_pocketNum+1)) {
+		}
+		if ((choosePocketNum + preMoveNum) % _pockets.size() == _pocketNum) {
+			return ex = true;
+		} else if ((choosePocketNum + preMoveNum) % _pockets.size() == (_pocketNum*2+1)) {
 			return ex = true;
 		}
 		return ex = false;
